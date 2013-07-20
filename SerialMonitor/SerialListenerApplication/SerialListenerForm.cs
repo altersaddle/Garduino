@@ -115,24 +115,54 @@ namespace WindowsFormsApplication1
                 return;
             }
 
-            using (SqlConnection conn = new SqlConnection(connectionString) ) {
-                conn.Open();
-                for (int i = 0; i < data.Length - 2; i++) 
+            if (data[0].Equals("DHT22"))
+            {
+                // Fix that comma, yo
+                data[2] = data[2].Replace(",", String.Empty);
+            }
+
+            SqlConnection conn = null;
+            try
+            {
+                using (conn = new SqlConnection(connectionString))
                 {
-                    using (SqlCommand cmd = conn.CreateCommand())
+                    conn.Open();
+                    for (int i = 0; i < data.Length - 2; i++)
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = sqlInsert;
+                        using (SqlCommand cmd = conn.CreateCommand())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = sqlInsert;
 
-                        cmd.Parameters.Add(new SqlParameter("@DEVICE", sensor));
-                        cmd.Parameters.Add(new SqlParameter("@SENSOR", string.Format("{0}{1}", data[0], i)));
-                        cmd.Parameters.Add(new SqlParameter("@NUMVAL", Convert.ToDouble(data[i + 2])));
-                        cmd.Parameters.Add(new SqlParameter("@OBSERVED", new DateTime()));
+                            cmd.Parameters.Add(new SqlParameter("@DEVICE", sensor));
+                            cmd.Parameters.Add(new SqlParameter("@SENSOR", string.Format("{0}_1}", data[0], i)));
+                            cmd.Parameters.Add(new SqlParameter("@NUMVAL", Convert.ToDouble(data[i + 2])));
+                            cmd.Parameters.Add(new SqlParameter("@OBSERVED", DateTime.Now));
 
-                        cmd.ExecuteNonQuery();
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                rxString = e.Message;
+                BeginInvoke(new EventHandler(ParseText));
+            }
+            finally
+            {
+                try
+                {
+                    if (conn != null)
+                    {
+                        conn.Close();
                     }
                 }
-                conn.Close();
+                catch (Exception)
+                {
+                    // probably not much more to do here
+                }
             }
         }
 
