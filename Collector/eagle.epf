@@ -1,0 +1,38 @@
+[Eagle]
+Version="06 04 00"
+Platform="Windows"
+Serial="62191E841E-LSR-WLM-1EL"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/atmel.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/busbar.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/con-tyco.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/con-wago-500.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/con-wago255.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/jumper.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/resistor.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/supply1.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-fet.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-neu-to92.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-npn.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-pnp.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-power.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor-small-signal.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistor.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/v-reg-micrel.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/v-reg.lbr"
+UsedLibrary="lbr/ArduinoProMini5V.lbr"
+UsedLibrary="C:/Program Files (x86)/EAGLE-6.4.0/lbr/transistors.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="149 223 748 622"
+State=0
+Number=0
+
+[Desktop]
+Screen="1920 1080"
+Window="Win_1"
