@@ -7,12 +7,15 @@ using System.Linq;
 using System.Text;
 using System.IO.Ports;
 using System.Windows.Forms;
+using System.Data.SqlClient;
 
 namespace WindowsFormsApplication1
 {
     public partial class SerialListenerForm : Form
     {
         static string rxString;
+        static string connectionString = "Server=192.168.1.32;Database=garden;User Id=garden_collector;Password=gnome123!@#;";
+        static string sqlInsert = "INSERT INTO dbo.SENSORDATA (DEVICE, SENSOR, NUMVAL, OBSERVED, COLLECTED) VALUES (@DEVICE, @SENSOR, @NUMVAL, @OBSERVED, GETDATE())";
 
         public SerialListenerForm()
         {
@@ -44,6 +47,7 @@ namespace WindowsFormsApplication1
 
             if (serialPort1.IsOpen)
             {
+          
                 buttonStop.Enabled = true;
                 buttonStart.Enabled = false;
 
@@ -75,6 +79,10 @@ namespace WindowsFormsApplication1
             // SIGNATURE    #VALUES VALUE1  VALUE2  etc...
             // DHT22    2   54.3    21.0
             string[] parts = line.Split('\t');
+
+            // TODO: extrapolate the name of the sensor, perhaps from the bluetooth name
+            dbCommit("GARDEN1", parts);
+
             if (parts.Length > 2) {
                 switch (parts[0]) {
                     case "LIGHT":
@@ -97,6 +105,35 @@ namespace WindowsFormsApplication1
                 }
             }
 
+        }
+
+        private void dbCommit(string sensor, string[] data)
+        {
+            if (data == null || data.Length < 3)
+            {
+                // TODO: log this awful data
+                return;
+            }
+
+            using (SqlConnection conn = new SqlConnection(connectionString) ) {
+                conn.Open();
+                for (int i = 0; i < data.Length - 2; i++) 
+                {
+                    using (SqlCommand cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = sqlInsert;
+
+                        cmd.Parameters.Add(new SqlParameter("@DEVICE", sensor));
+                        cmd.Parameters.Add(new SqlParameter("@SENSOR", string.Format("{0}{1}", data[0], i)));
+                        cmd.Parameters.Add(new SqlParameter("@NUMVAL", Convert.ToDouble(data[i + 2])));
+                        cmd.Parameters.Add(new SqlParameter("@OBSERVED", new DateTime()));
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                conn.Close();
+            }
         }
 
         private void ParseText(object sender, EventArgs e)
