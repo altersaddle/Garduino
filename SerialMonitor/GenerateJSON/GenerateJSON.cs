@@ -19,6 +19,7 @@ namespace GenerateJSON
             GenerateJSON app = new GenerateJSON();
 
             string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221");
+            Console.WriteLine(past24Temp);
         }
 
         private string generatePast24Hours(string device, string sensor)
