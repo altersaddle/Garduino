@@ -28,7 +28,7 @@ CREATE TABLE [dbo].[SENSORDATA](
 	[ID] [numeric](18, 0) IDENTITY(1,1) NOT NULL,
 	[DEVICE] [nchar](16) NOT NULL,
 	[SENSOR] [nchar](16) NOT NULL,
-	[NUMVAL] [numeric](18, 0) NULL,
+	[NUMVAL] [numeric](18, 4) NULL,
 	[STRVAL] [nchar](255) NULL,
 	[OBSERVED] [datetime] NULL,
 	[COLLECTED] [datetime] NULL

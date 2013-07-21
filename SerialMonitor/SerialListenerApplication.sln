@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SerialListenerApplication", "SerialListenerApplication\SerialListenerApplication.csproj", "{F2678CED-515F-414E-9371-D1133DCFCE77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateJSON", "GenerateJSON\GenerateJSON.csproj", "{39AB793A-05DC-418F-975B-886245A1F314}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{F2678CED-515F-414E-9371-D1133DCFCE77}.Debug|x86.Build.0 = Debug|x86
 		{F2678CED-515F-414E-9371-D1133DCFCE77}.Release|x86.ActiveCfg = Release|x86
 		{F2678CED-515F-414E-9371-D1133DCFCE77}.Release|x86.Build.0 = Release|x86
+		{39AB793A-05DC-418F-975B-886245A1F314}.Debug|x86.ActiveCfg = Debug|x86
+		{39AB793A-05DC-418F-975B-886245A1F314}.Debug|x86.Build.0 = Debug|x86
+		{39AB793A-05DC-418F-975B-886245A1F314}.Release|x86.ActiveCfg = Release|x86
+		{39AB793A-05DC-418F-975B-886245A1F314}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
