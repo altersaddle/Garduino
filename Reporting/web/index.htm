@@ -1,4 +1,5 @@
 <script src="Chart.js" ></script>
+<script src="collectorData.js"></script>
 <script>
 // TODO: fetch this from an externally generated URL/File
 
@@ -29,9 +30,14 @@ var lineOptions = {
 function drawChart() {
 	var ctx = document.getElementById("monthChart").getContext("2d");
 	var lineChart = new Chart(ctx).Line(monthData, lineOptions);
+	
+	ctx = document.getElementById("past24hrTempChart").getContext("2d");
+	var temp24hChart = new Chart(ctx).Line(temperatureData, lineOptions);
 }
 </script>
 <body onLoad="javascript:drawChart();">
 Data by Month<hr>
 <canvas id="monthChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas>
+Past 24 Hours<hr>
+<canvas id="past24hrTempChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas>
 </body>

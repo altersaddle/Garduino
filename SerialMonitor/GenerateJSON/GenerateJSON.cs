@@ -60,7 +60,7 @@ namespace GenerateJSON
                     data = valueList.ToArray();
                 }
 
-                retVal = string.Format("{{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }}", string.Join(",", data), string.Join("\",\"", labels));
+                retVal = string.Format("var temperatureData = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels));
             }
             catch (Exception e)
             {
