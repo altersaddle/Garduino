@@ -1,4 +1,21 @@
-﻿using System;
+﻿// <copyright file="GenerateJSON.cs" company="Hermit Colony">
+// Copyright (c) 2013 All Right Reserved, http://ipatch.ca/
+//
+// This source is subject to no license whatsoever.  If you hurt 
+// yourself using this code, you shouldn't do that.
+//
+// THIS CODE AND INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY 
+// KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A
+// PARTICULAR PURPOSE.
+//
+// </copyright>
+// <author>Malcolm Walker</author>
+// <email>evil.overlord.esq@gmail.com</email>
+// <date>2013-07-20</date>
+// <summary>Contains an appliance application for extracting and  base, abstract class for an AuthorisationPolicyProvider</summary>
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,19 +27,24 @@ namespace GenerateJSON
     class GenerateJSON
     {
         // TODO: Fetch DB connection from common storage
-        static string connectionString = "Server=192.168.1.32;Database=garden;User Id=garden_collector;Password=gnome123!@#;";
+        static string connectionStringTemplate = "Server=192.168.1.32;Database=garden;User Id={0};Password={1}";
         static string past24HourQuery = "SELECT TOP 96 AVG(NUMVAL) AS TEMPERATURE, STEP FROM SENSOR_AGG WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY STEP ORDER BY MAX(COLLECTED) DESC";
 
         static void Main(string[] args)
         {
+            if (args.Length < 3)
+            {
+                Console.WriteLine(string.Format("Usage: {0} <user> <password>"));
+                return;
+            }
             // past 24 hours: 96 data points, 24 labels
             GenerateJSON app = new GenerateJSON();
 
-            string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221");
+            string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221", string.Format(connectionStringTemplate, args[1], args[2]));
             Console.WriteLine(past24Temp);
         }
 
-        private string generatePast24Hours(string device, string sensor)
+        private string generatePast24Hours(string device, string sensor, string connectionString)
         {
             SqlConnection conn = null;
             string[] labels = null;
