@@ -28,16 +28,19 @@ var lineOptions = {
 }
 
 function drawChart() {
-	var ctx = document.getElementById("monthChart").getContext("2d");
-	var lineChart = new Chart(ctx).Line(monthData, lineOptions);
 	
-	ctx = document.getElementById("past24hrTempChart").getContext("2d");
+	var ctx = document.getElementById("past24hrTempChart").getContext("2d");
 	var temp24hChart = new Chart(ctx).Line(temperatureData, lineOptions);
+
+	ctx = document.getElementById("past24hrHumidityChart").getContext("2d");
+	var humidity24hChart = new Chart(ctx).Line(humidityData, lineOptions);
+	
 }
 </script>
 <body onLoad="javascript:drawChart();">
-Data by Month<hr>
-<canvas id="monthChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
 Temperature Past 24 Hours<hr>
-<canvas id="past24hrTempChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas>
+<canvas id="past24hrTempChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+Humidity Past 24 Hours<hr>
+<canvas id="past24hrHumidityChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+
 </body>
