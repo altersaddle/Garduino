@@ -32,19 +32,22 @@ namespace GenerateJSON
 
         static void Main(string[] args)
         {
-            if (args.Length < 3)
+            if (args.Length < 2)
             {
-                Console.WriteLine(string.Format("Usage: {0} <user> <password>"));
+                Console.WriteLine(string.Format("Usage: {0} <user> <password>", System.AppDomain.CurrentDomain.FriendlyName));
                 return;
             }
             // past 24 hours: 96 data points, 24 labels
             GenerateJSON app = new GenerateJSON();
+            string connectionString = string.Format(connectionStringTemplate, args[0], args[1]);
 
-            string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221", string.Format(connectionStringTemplate, args[1], args[2]));
+            string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221", connectionString, "temperatureData");
             Console.WriteLine(past24Temp);
+            string past24Humidity = app.generatePast24Hours("GARDEN1", "DHT220", connectionString, "humidityData");
+            Console.WriteLine(past24Humidity);
         }
 
-        private string generatePast24Hours(string device, string sensor, string connectionString)
+        private string generatePast24Hours(string device, string sensor, string connectionString, string variableName)
         {
             SqlConnection conn = null;
             string[] labels = null;
@@ -78,11 +81,11 @@ namespace GenerateJSON
                         }
                      }
 
-                    labels = labelList.ToArray();
-                    data = valueList.ToArray();
+                    labels = labelList.Reverse<string>().ToArray();
+                    data = valueList.Reverse<string>().ToArray();
                 }
 
-                retVal = string.Format("var temperatureData = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels));
+                retVal = string.Format("var {2} = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels), variableName);
             }
             catch (Exception e)
             {
