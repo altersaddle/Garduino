@@ -5,17 +5,18 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.IO.Ports;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 
-namespace WindowsFormsApplication1
+namespace SerialListenerApplication
 {
     public partial class SerialListenerForm : Form
     {
         static string rxString;
         static string connectionString = "Server=192.168.1.32;Database=garden;User Id=garden_collector;Password=gnome123!@#;";
         static string sqlInsert = "INSERT INTO dbo.SENSORDATA (DEVICE, SENSOR, NUMVAL, OBSERVED, COLLECTED) VALUES (@DEVICE, @SENSOR, @NUMVAL, @OBSERVED, GETDATE())";
+
+        private ListenerWorker listenerWorker = null;
 
         public SerialListenerForm()
         {
@@ -30,22 +31,15 @@ namespace WindowsFormsApplication1
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            serialPort1.PortName = comboBox1.Text;
-            
-            serialPort1.BaudRate = 9600;
+            listenerWorker = new ListenerWorker("GARDEN1", comboBox1.Text, 9600);
 
-            try
-            {
-                serialPort1.Open();
-                serialPort1.DataReceived += new SerialDataReceivedEventHandler(SerialDataReceived);
-            }
-            catch (Exception ex)
-            {
-                rxString = ex.Message;
-                BeginInvoke(new EventHandler(ParseText));
-            }
+            listenerWorker.LineReceived += new ListenerWorker.LineReceivedEventHandler(listenerWorker_LineReceived);
 
-            if (serialPort1.IsOpen)
+            listenerWorker.StartListening();
+
+
+
+            if (listenerWorker.IsRunning())
             {
           
                 buttonStop.Enabled = true;
@@ -57,11 +51,13 @@ namespace WindowsFormsApplication1
             }
         }
 
+
+
         private void buttonStop_Click(object sender, EventArgs e)
         {
-            if (serialPort1.IsOpen)
+            if (listenerWorker.IsRunning())
             {
-                serialPort1.Close();
+                listenerWorker.StopListening();
 
                 buttonStop.Enabled = false;
                 buttonStart.Enabled = true;
@@ -72,16 +68,26 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private delegate void LineReceivedEvent(string line);
-        private void LineReceived(string line)
+
+
+        public delegate void LineReceivedEvent(string line);
+
+        void listenerWorker_LineReceived(object sender, EventArgs e)
         {
+            ListenerWorker l = (ListenerWorker)sender;
+            string line = l.GetData();
+            string sensorName = l.GetSensorName();
+
             // Process a line of text.  Format is:
             // SIGNATURE    #VALUES VALUE1  VALUE2  etc...
             // DHT22    2   54.3    21.0
             string[] parts = line.Split('\t');
 
             // TODO: extrapolate the name of the sensor, perhaps from the bluetooth name
-            dbCommit("GARDEN1", parts);
+            //dbCommit(sensorName, parts);
+
+            rxString = line;
+            BeginInvoke(new EventHandler(PrintText));
 
             if (parts.Length > 2) {
                 switch (parts[0]) {
@@ -148,7 +154,7 @@ namespace WindowsFormsApplication1
             catch (Exception e)
             {
                 rxString = e.Message;
-                BeginInvoke(new EventHandler(ParseText));
+                BeginInvoke(new EventHandler(PrintText));
             }
             finally
             {
@@ -166,24 +172,16 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private void ParseText(object sender, EventArgs e)
-        {
-            
+        private void PrintText(object sender, EventArgs e)
+        {   
             textBox1.AppendText(rxString);
         }
 
-        private void SerialDataReceived
-          (object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
-        {
-            SerialPort sp = (SerialPort)sender;
-            string line = serialPort1.ReadLine();
-            BeginInvoke(new LineReceivedEvent(LineReceived), line);
-        }
 
 
         private void SerialListenerForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (serialPort1.IsOpen) serialPort1.Close();
+            if (listenerWorker.IsRunning()) listenerWorker.StopListening();
         }
 
     }

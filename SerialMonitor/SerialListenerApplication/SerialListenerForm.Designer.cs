@@ -1,4 +1,4 @@
-﻿namespace WindowsFormsApplication1
+﻿namespace SerialListenerApplication
 {
     partial class SerialListenerForm
     {
