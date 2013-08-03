@@ -80,7 +80,7 @@ namespace SerialListenerApplication
             (object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             SerialPort sp = (SerialPort)sender;
-            string line = serialPort1.ReadLine();
+            dataString = serialPort1.ReadLine();
 
             OnLineReceived(EventArgs.Empty);
 

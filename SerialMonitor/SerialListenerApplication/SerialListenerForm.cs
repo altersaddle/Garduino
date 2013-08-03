@@ -81,35 +81,14 @@ namespace SerialListenerApplication
             // Process a line of text.  Format is:
             // SIGNATURE    #VALUES VALUE1  VALUE2  etc...
             // DHT22    2   54.3    21.0
-            string[] parts = line.Split('\t');
-
+            
             // TODO: extrapolate the name of the sensor, perhaps from the bluetooth name
-            //dbCommit(sensorName, parts);
+            dbCommit(sensorName, line.Split('\t'));
 
             rxString = line;
-            BeginInvoke(new EventHandler(PrintText));
+            BeginInvoke(new EventHandler(UpdateInterface));
 
-            if (parts.Length > 2) {
-                switch (parts[0]) {
-                    case "LIGHT":
-                        // parse light sensor
-                        txtLight.Text = parts[2];
-                        break;
-                    case "SOIL":
-                        // soil sensor
-                        txtSoil.Text = parts[2];
-                        break;
-                    case "DHT22":
-                        // this thing has two parts
-                        txtHumidity.Text = parts[2];
-                        txtTemperature.Text = parts[3];
-                        break;
-                    default:
-                        // Did not recognize the signature
-                        textBox1.AppendText(line);
-                        break;
-                }
-            }
+
 
         }
 
@@ -154,7 +133,7 @@ namespace SerialListenerApplication
             catch (Exception e)
             {
                 rxString = e.Message;
-                BeginInvoke(new EventHandler(PrintText));
+                BeginInvoke(new EventHandler(UpdateInterface));
             }
             finally
             {
@@ -172,9 +151,38 @@ namespace SerialListenerApplication
             }
         }
 
-        private void PrintText(object sender, EventArgs e)
+        private void UpdateInterface(object sender, EventArgs e)
         {   
-            textBox1.AppendText(rxString);
+            if (string.IsNullOrWhiteSpace(rxString) )
+            {
+                return;
+            }
+
+            string[] parts = rxString.Split('\t');
+
+            if (parts.Length > 2)
+            {
+                switch (parts[0])
+                {
+                    case "LIGHT":
+                        // parse light sensor
+                        txtLight.Text = parts[2];
+                        break;
+                    case "SOIL":
+                        // soil sensor
+                        txtSoil.Text = parts[2];
+                        break;
+                    case "DHT22":
+                        // this thing has two parts
+                        txtHumidity.Text = parts[2];
+                        txtTemperature.Text = parts[3];
+                        break;
+                    default:
+                        // Did not recognize the signature
+                        textBox1.AppendText(rxString);
+                        break;
+                }
+            }
         }
 
 
