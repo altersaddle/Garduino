@@ -37,10 +37,10 @@ function drawChart() {
 	var humidity24hChart = new Chart(ctx).Line(humidityData, lineOptions);
 	
 	ctx = document.getElementById("past30dayTempChart").getContext("2d");
-	var temp30dayChart = new Chart(ctx).line(temp30dayData, lineOptions);
+	var temp30dayChart = new Chart(ctx).Line(temp30dayData, lineOptions);
 	
 	ctx = document.getElementById("past30dayHumidityChart").getContext("2d");
-	var humid30dayChart = new Chart(ctx).line(humidity30dayData, lineOptions);
+	var humid30dayChart = new Chart(ctx).Line(humidity30dayData, lineOptions);
 }
 </script>
 <body onLoad="javascript:drawChart();">
