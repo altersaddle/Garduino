@@ -16,14 +16,25 @@ namespace SerialListenerApplication
         private string dataString;
         private string sensorName;
 
-        public delegate void LineReceivedEventHandler(object sender, EventArgs e);
-        public event LineReceivedEventHandler LineReceived;
+        public delegate void DataReceivedEventHandler(object sender, EventArgs e);
+        public event DataReceivedEventHandler DataReceived;
 
-        private void OnLineReceived(EventArgs e)
+        public delegate void MessageBroadcastHandler(object sender, EventArgs e);
+        public event MessageBroadcastHandler MessageBroadcast;
+
+        private void OnDataReceived(EventArgs e)
         {
-            if (LineReceived != null)
+            if (DataReceived != null)
             {
-                LineReceived(this, e);
+                DataReceived(this, e);
+            }
+        }
+
+        private void OnMessageBroadcast(EventArgs e)
+        {
+            if (MessageBroadcast != null)
+            {
+                MessageBroadcast(this, e);
             }
         }
 
@@ -59,11 +70,13 @@ namespace SerialListenerApplication
             {
                 serialPort1.Open();
                 serialPort1.DataReceived += new SerialDataReceivedEventHandler(SerialDataReceived);
+                serialPort1.ErrorReceived += new SerialErrorReceivedEventHandler(SerialErrorReceived);
+                // TODO: some external means of detecting when the hardware state changes
             }
             catch (Exception ex)
             {
-                dataString = ex.Message;
-                //BeginInvoke(new EventHandler(ParseText));
+//                dataString = ex.Message;
+                OnMessageBroadcast(new MessageEventArgs(ex.Message));
             }
 
             return true;
@@ -82,10 +95,25 @@ namespace SerialListenerApplication
             SerialPort sp = (SerialPort)sender;
             dataString = serialPort1.ReadLine();
 
-            OnLineReceived(EventArgs.Empty);
-
-           // BeginInvoke(new SerialListenerApplication.SerialListenerForm.LineReceivedEvent(LineReceived), line);
+            OnDataReceived(EventArgs.Empty);
         }
 
+        private void SerialErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        {
+            SerialPort sp = (SerialPort)sender;
+
+            OnMessageBroadcast(new MessageEventArgs(string.Format("{0} {1}", sp.PortName, e.EventType)));
+        }
+
+    }
+
+    class MessageEventArgs : EventArgs
+    {
+        public MessageEventArgs(string message)
+        {
+            Message = message;
+        }
+
+        public string Message { get; set; }
     }
 }

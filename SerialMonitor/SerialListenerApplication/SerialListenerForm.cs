@@ -33,7 +33,8 @@ namespace SerialListenerApplication
         {
             listenerWorker = new ListenerWorker("GARDEN1", comboBox1.Text, 9600);
 
-            listenerWorker.LineReceived += new ListenerWorker.LineReceivedEventHandler(listenerWorker_LineReceived);
+            listenerWorker.DataReceived += new ListenerWorker.DataReceivedEventHandler(listenerWorker_LineReceived);
+            listenerWorker.MessageBroadcast += new ListenerWorker.MessageBroadcastHandler(listenerWorker_MessageBroadcast);
 
             listenerWorker.StartListening();
 
@@ -48,6 +49,16 @@ namespace SerialListenerApplication
                 comboBox1.Enabled = false;
 
                 textBox1.ReadOnly = false;
+            }
+        }
+
+        void listenerWorker_MessageBroadcast(object sender, EventArgs e)
+        {
+            if (e is MessageEventArgs)
+            {
+                MessageEventArgs me = (MessageEventArgs)e;
+                rxString = me.Message;
+                BeginInvoke(new EventHandler(UpdateInterface));
             }
         }
 
@@ -68,27 +79,24 @@ namespace SerialListenerApplication
             }
         }
 
-
-
         public delegate void LineReceivedEvent(string line);
 
+        // Process a line of text.  Format is:
+        // SIGNATURE    #VALUES VALUE1  VALUE2  etc...
+        // DHT22    2   54.3    21.0
         void listenerWorker_LineReceived(object sender, EventArgs e)
         {
             ListenerWorker l = (ListenerWorker)sender;
             string line = l.GetData();
             string sensorName = l.GetSensorName();
 
-            // Process a line of text.  Format is:
-            // SIGNATURE    #VALUES VALUE1  VALUE2  etc...
-            // DHT22    2   54.3    21.0
+
             
             // TODO: extrapolate the name of the sensor, perhaps from the bluetooth name
             dbCommit(sensorName, line.Split('\t'));
 
             rxString = line;
             BeginInvoke(new EventHandler(UpdateInterface));
-
-
 
         }
 
