@@ -24,7 +24,8 @@ var monthData = {
 }
 
 var lineOptions = {
-	bezierCurve	: false
+	bezierCurve	: false,
+	pointDot : false
 }
 
 function drawChart() {
@@ -35,12 +36,21 @@ function drawChart() {
 	ctx = document.getElementById("past24hrHumidityChart").getContext("2d");
 	var humidity24hChart = new Chart(ctx).Line(humidityData, lineOptions);
 	
+	ctx = document.getElementById("past30dayTempChart").getContext("2d");
+	var temp30dayChart = new Chart(ctx).line(temp30dayData, lineOptions);
+	
+	ctx = document.getElementById("past30dayHumidityChart").getContext("2d");
+	var humid30dayChart = new Chart(ctx).line(humidity30dayData, lineOptions);
 }
 </script>
 <body onLoad="javascript:drawChart();">
 Temperature Past 24 Hours<hr>
-<canvas id="past24hrTempChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+<canvas id="past24hrTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
 Humidity Past 24 Hours<hr>
-<canvas id="past24hrHumidityChart" data-type="Line" width="600" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+<canvas id="past24hrHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+Temperature Past 30 Days<hr>
+<canvas id="past30dayTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+Humidity Past 30 Days<hr>
+<canvas id="past30dayHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
 
 </body>
