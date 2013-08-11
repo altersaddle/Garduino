@@ -29,7 +29,7 @@ namespace GenerateJSON
         // TODO: Fetch DB connection from common storage
         static string connectionStringTemplate = "Server=192.168.1.32;Database=garden;User Id={0};Password={1}";
         static string past24HourQuery = "SELECT TOP 96 AVG(NUMVAL) AS VALUE, STEP FROM SENSOR_AGG WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY STEP ORDER BY MAX(COLLECTED) DESC";
-        static string past30DayQuery = "SELECT TOP 30 MIN(NUMVAL) AS MINVAL, MAX(NUMVAL) AS MAXVAL,	AVG(NUMVAL) AS AVGVAL, CONVERT(date,COLLECTED) AS DATE FROM SENSORDATA WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY CONVERT(date,COLLECTED) ORDER BY MAX(COLLECTED) DESC";
+        static string past30DayQuery = "SELECT TOP 30 MAX(NUMVAL) AS MAXVAL, AVG(NUMVAL) AS AVGVAL, MIN(NUMVAL) AS MINVAL, CONVERT(date,COLLECTED) AS DATE FROM SENSORDATA WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY CONVERT(date,COLLECTED) ORDER BY MAX(COLLECTED) DESC";
 
         static void Main(string[] args)
         {
@@ -130,10 +130,10 @@ namespace GenerateJSON
                     conn.Open();
 
                     List<string> labelList = new List<string>();
-                    List<string> minValueList = new List<string>();
                     List<string> maxValueList = new List<string>();
                     List<string> avgValueList = new List<string>();
-
+                    List<string> minValueList = new List<string>();
+                    
                     using (SqlCommand cmd = conn.CreateCommand())
                     {
                         cmd.CommandType = CommandType.Text;
@@ -146,9 +146,9 @@ namespace GenerateJSON
                         {
                             while (results.Read())
                             {
-                                minValueList.Add(string.Format("{0}", results[0]));
-                                maxValueList.Add(string.Format("{0}", results[1]));
-                                avgValueList.Add(string.Format("{0}", results[2]));
+                                maxValueList.Add(string.Format("{0}", results[0]));
+                                avgValueList.Add(string.Format("{0}", results[1]));
+                                minValueList.Add(string.Format("{0}", results[2]));
                                 labelList.Add(string.Format("{0:d}", results[3]));
                             }
                         }
@@ -156,17 +156,18 @@ namespace GenerateJSON
 
                     while (labelList.Count < 30)
                     {
-                        // pad
-                        minValueList.Add(string.Empty);
-                        maxValueList.Add(string.Empty);
-                        avgValueList.Add(string.Empty);
+                        // pad with zeroes
+                        maxValueList.Add("0");
+                        avgValueList.Add("0");
+                        minValueList.Add("0");
+                        // pad with nothing
                         labelList.Add(string.Empty);
                     }
 
                     labels = labelList.Reverse<string>().ToArray();
-                    mindata = minValueList.Reverse<string>().ToArray();
                     maxdata = maxValueList.Reverse<string>().ToArray();
                     avgdata = avgValueList.Reverse<string>().ToArray();
+                    mindata = minValueList.Reverse<string>().ToArray();
                 }
 
                 retVal = string.Format("var {0} = {{ labels : [\"{1}\"], datasets : [{{fillColor:\"rgba({2},0.33)\",strokeColor:\"rgba({2},1)\",data:[{3}]}}," +
