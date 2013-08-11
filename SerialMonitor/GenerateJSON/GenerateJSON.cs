@@ -42,17 +42,21 @@ namespace GenerateJSON
             GenerateJSON app = new GenerateJSON();
             string connectionString = string.Format(connectionStringTemplate, args[0], args[1]);
 
-            string past24Temp = app.generatePast24Hours("GARDEN1", "DHT221", connectionString, "temperatureData");
+            string past24Temp = app.generatePast24Hours(connectionString, "GARDEN1", "DHT221", "temperatureData");
             Console.WriteLine(past24Temp);
-            string past24Humidity = app.generatePast24Hours("GARDEN1", "DHT220", connectionString, "humidityData");
+            string past24Humidity = app.generatePast24Hours(connectionString, "GARDEN1", "DHT220",  "humidityData");
             Console.WriteLine(past24Humidity);
-            string monthTemp = app.generate30DaySummary("GARDEN1", "DHT221", connectionString, "temp30dayData");
+            string past24Light = app.generatePast24Hours(connectionString, "GARDEN1", "LIGHT0",  "lightData", -1024.0, -1.0);
+            Console.WriteLine(past24Light);
+            string monthTemp = app.generate30DaySummary(connectionString, "GARDEN1", "DHT221", "temp30dayData");
             Console.WriteLine(monthTemp);
-            string monthHumidity = app.generate30DaySummary("GARDEN1", "DHT220", connectionString, "humidity30dayData");
+            string monthHumidity = app.generate30DaySummary(connectionString, "GARDEN1", "DHT220", "humidity30dayData");
             Console.WriteLine(monthHumidity);
+            string monthLight = app.generate30DaySummary(connectionString, "GARDEN1", "LIGHT0", "light30dayData", -1024.0, -1.0);
+            Console.WriteLine(monthLight);
         }
 
-        private string generatePast24Hours(string device, string sensor, string connectionString, string variableName)
+        private string generatePast24Hours(string connectionString, string device, string sensor, string variableName, double offset = 0.0, double multiplier = 1.0)
         {
             SqlConnection conn = null;
             string[] labels = null;
@@ -80,7 +84,7 @@ namespace GenerateJSON
                         {
                             while (results.Read())
                             {
-                                valueList.Add(string.Format("{0}", results[0]));
+                                valueList.Add(string.Format("{0}", (Convert.ToDouble(results[0]) + offset) * multiplier));
                                 labelList.Add(((int)results[1] % 4 == 0 ? string.Format("{0,2}:00", (int)results[1] / 4) : string.Empty));
                             }
                         }
@@ -114,7 +118,7 @@ namespace GenerateJSON
             return retVal;
         }
 
-        private string generate30DaySummary(string device, string sensor, string connectionString, string variableName)
+        private string generate30DaySummary(string connectionString, string device, string sensor, string variableName, double offset = 0.0, double multiplier = 1.0)
         {
             SqlConnection conn = null;
             string[] labels = null;
@@ -146,9 +150,9 @@ namespace GenerateJSON
                         {
                             while (results.Read())
                             {
-                                maxValueList.Add(string.Format("{0}", results[0]));
-                                avgValueList.Add(string.Format("{0}", results[1]));
-                                minValueList.Add(string.Format("{0}", results[2]));
+                                maxValueList.Add(string.Format("{0}", (Convert.ToDouble(results[0]) + offset) * multiplier));
+                                avgValueList.Add(string.Format("{0}", (Convert.ToDouble(results[1]) + offset) * multiplier));
+                                minValueList.Add(string.Format("{0}", (Convert.ToDouble(results[2]) + offset) * multiplier));
                                 labelList.Add(string.Format("{0:d}", results[3]));
                             }
                         }
@@ -179,7 +183,7 @@ namespace GenerateJSON
                     string.Join(",", maxdata),
                     "220,220,220",
                     string.Join(",", avgdata),
-                    "151,187,205",
+                    "28,22,125",
                     string.Join(",", mindata)
                     );
             }
