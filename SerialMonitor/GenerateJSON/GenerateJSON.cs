@@ -149,7 +149,7 @@ namespace GenerateJSON
                                 minValueList.Add(string.Format("{0}", results[0]));
                                 maxValueList.Add(string.Format("{0}", results[1]));
                                 avgValueList.Add(string.Format("{0}", results[2]));
-                                labelList.Add(string.Format("{0}", results[3]));
+                                labelList.Add(string.Format("{0:d}", results[3]));
                             }
                         }
                     }
@@ -170,16 +170,16 @@ namespace GenerateJSON
                 }
 
                 retVal = string.Format("var {0} = {{ labels : [\"{1}\"], datasets : [{{fillColor:\"rgba({2},0.33)\",strokeColor:\"rgba({2},1)\",data:[{3}]}}," +
-                    "{{fillColor:\"rgba({4},0.5)\",strokeColor:\"rgba({4},1)\",data:[{5}]}}," +
-                    "{{fillColor:\"rgba({6},0.5)\",strokeColor:\"rgba({6},1)\",data:[{7}]}}] }};",
+                    "{{fillColor:\"rgba({4},0.33)\",strokeColor:\"rgba({4},1)\",data:[{5}]}}," +
+                    "{{fillColor:\"rgba({6},0.33)\",strokeColor:\"rgba({6},1)\",data:[{7}]}}] }};",
                     variableName,
                     string.Join("\",\"", labels),
-                    "151,187,205",
-                    string.Join(",", mindata),
+                    "205,50,50",
+                    string.Join(",", maxdata),
                     "220,220,220",
                     string.Join(",", avgdata),
-                    "205,187,151",
-                    string.Join(",", maxdata)
+                    "151,187,205",
+                    string.Join(",", mindata)
                     );
             }
             catch (Exception e)
