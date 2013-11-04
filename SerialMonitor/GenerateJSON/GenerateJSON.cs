@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using System.Data;
+using System.Diagnostics;
 
 namespace GenerateJSON
 {
@@ -63,6 +64,9 @@ namespace GenerateJSON
             string[] data = null;
             string retVal = string.Empty;
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             try
             {
                 using (conn = new SqlConnection(connectionString))
@@ -98,8 +102,7 @@ namespace GenerateJSON
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                retVal = string.Format("var {0} = null;\nvar {0}Error = \"{1}\"", variableName, e.Message);
             }
             finally
             {
@@ -114,7 +117,10 @@ namespace GenerateJSON
                 {
                     // It's over, all over
                 }
+                stopWatch.Stop();
             }
+            retVal += string.Format("\n var {0}Time = {1};", variableName, stopWatch.ElapsedMilliseconds);
+
             return retVal;
         }
 
@@ -126,6 +132,9 @@ namespace GenerateJSON
             string[] maxdata = null;
             string[] avgdata = null;
             string retVal = string.Empty;
+
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             try
             {
@@ -189,8 +198,7 @@ namespace GenerateJSON
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
+                retVal = string.Format("var {0} = null;\nvar {0}Error = \"{1}\"", variableName, e.Message);
             }
             finally
             {
@@ -205,7 +213,10 @@ namespace GenerateJSON
                 {
                     // It's over, all over
                 }
+                stopWatch.Stop();
             }
+            retVal += string.Format("\n var {0}Time = {1};", variableName, stopWatch.ElapsedMilliseconds);
+
             return retVal;
         }
 
