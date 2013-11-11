@@ -43,21 +43,21 @@ namespace GenerateJSON
             GenerateJSON app = new GenerateJSON();
             string connectionString = string.Format(connectionStringTemplate, args[0], args[1]);
 
-            string past24Temp = app.generatePast24Hours(connectionString, "GARDEN1", "DHT221", "temperatureData");
+            string past24Temp = app.generatePast24Hours(connectionString, "GARDEN1", "DHT221", "past24hrTemp");
             Console.WriteLine(past24Temp);
-            string past24Humidity = app.generatePast24Hours(connectionString, "GARDEN1", "DHT220",  "humidityData");
+            string past24Humidity = app.generatePast24Hours(connectionString, "GARDEN1", "DHT220", "past24hrHumidity");
             Console.WriteLine(past24Humidity);
-            string past24Light = app.generatePast24Hours(connectionString, "GARDEN1", "LIGHT0",  "lightData", -1024.0, -1.0);
+            string past24Light = app.generatePast24Hours(connectionString, "GARDEN1", "LIGHT0", "past24hrLight", -1024.0, -1.0);
             Console.WriteLine(past24Light);
-            string monthTemp = app.generate30DaySummary(connectionString, "GARDEN1", "DHT221", "temp30dayData");
+            string monthTemp = app.generate30DaySummary(connectionString, "GARDEN1", "DHT221", "past30dayTemp");
             Console.WriteLine(monthTemp);
-            string monthHumidity = app.generate30DaySummary(connectionString, "GARDEN1", "DHT220", "humidity30dayData");
+            string monthHumidity = app.generate30DaySummary(connectionString, "GARDEN1", "DHT220", "past30dayHumidity");
             Console.WriteLine(monthHumidity);
-            string monthLight = app.generate30DaySummary(connectionString, "GARDEN1", "LIGHT0", "light30dayData", -1024.0, -1.0);
+            string monthLight = app.generate30DaySummary(connectionString, "GARDEN1", "LIGHT0", "past30dayLight", -1024.0, -1.0);
             Console.WriteLine(monthLight);
         }
 
-        private string generatePast24Hours(string connectionString, string device, string sensor, string variableName, double offset = 0.0, double multiplier = 1.0)
+        private string generatePast24Hours(string connectionString, string device, string sensor, string variablePrefix, double offset = 0.0, double multiplier = 1.0)
         {
             SqlConnection conn = null;
             string[] labels = null;
@@ -98,11 +98,11 @@ namespace GenerateJSON
                     data = valueList.Reverse<string>().ToArray();
                 }
 
-                retVal = string.Format("var {2} = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels), variableName);
+                retVal = string.Format("var {2}Data = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels), variablePrefix);
             }
             catch (Exception e)
             {
-                retVal = string.Format("var {0} = null;\nvar {0}Error = \"{1}\"", variableName, e.Message);
+                retVal = string.Format("var {0}Data = {{datasets:[]}};\nvar {0}Error = \"{1}\"", variablePrefix, e.Message);
             }
             finally
             {
@@ -119,12 +119,12 @@ namespace GenerateJSON
                 }
                 stopWatch.Stop();
             }
-            retVal += string.Format("\n var {0}Time = {1};", variableName, stopWatch.ElapsedMilliseconds);
+            retVal += string.Format("\n var {0}Time = {1};", variablePrefix, stopWatch.ElapsedMilliseconds);
 
             return retVal;
         }
 
-        private string generate30DaySummary(string connectionString, string device, string sensor, string variableName, double offset = 0.0, double multiplier = 1.0)
+        private string generate30DaySummary(string connectionString, string device, string sensor, string variablePrefix, double offset = 0.0, double multiplier = 1.0)
         {
             SqlConnection conn = null;
             string[] labels = null;
@@ -183,10 +183,10 @@ namespace GenerateJSON
                     mindata = minValueList.Reverse<string>().ToArray();
                 }
 
-                retVal = string.Format("var {0} = {{ labels : [\"{1}\"], datasets : [{{fillColor:\"rgba({2},0.33)\",strokeColor:\"rgba({2},1)\",data:[{3}]}}," +
+                retVal = string.Format("var {0}Data = {{ labels : [\"{1}\"], datasets : [{{fillColor:\"rgba({2},0.33)\",strokeColor:\"rgba({2},1)\",data:[{3}]}}," +
                     "{{fillColor:\"rgba({4},0.33)\",strokeColor:\"rgba({4},1)\",data:[{5}]}}," +
                     "{{fillColor:\"rgba({6},0.33)\",strokeColor:\"rgba({6},1)\",data:[{7}]}}] }};",
-                    variableName,
+                    variablePrefix,
                     string.Join("\",\"", labels),
                     "205,50,50",
                     string.Join(",", maxdata),
@@ -198,7 +198,7 @@ namespace GenerateJSON
             }
             catch (Exception e)
             {
-                retVal = string.Format("var {0} = null;\nvar {0}Error = \"{1}\"", variableName, e.Message);
+                retVal = string.Format("var {0}Data = {{datasets:[]}};\nvar {0}Error = \"{1}\"", variablePrefix, e.Message);
             }
             finally
             {
@@ -215,7 +215,7 @@ namespace GenerateJSON
                 }
                 stopWatch.Stop();
             }
-            retVal += string.Format("\n var {0}Time = {1};", variableName, stopWatch.ElapsedMilliseconds);
+            retVal += string.Format("\n var {0}Time = {1};", variablePrefix, stopWatch.ElapsedMilliseconds);
 
             return retVal;
         }
