@@ -1,49 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
 <head>
-<link rel="stylesheet" type="text/css" href="garden.css">
+<link rel="stylesheet" type="text/css" href="garden.css" />
 <script src="Chart.js" ></script>
 <script src="collectorData.js"></script>
-<script>
+<script language="javascript">
 
-var lineOptions = {
-	bezierCurve	: false,
-	pointDot : false
-}
+  var lineOptions = {
+  bezierCurve	: false,
+  pointDot : false
+  }
 
-// Data comes from collectorData.js, unless the collector fails
-function drawChart() {
-	
-	var ctx = document.getElementById("past24hrTempChart").getContext("2d");
-	var temp24hChart = new Chart(ctx).Line(temperatureData, lineOptions);
+  var prefixes = ["past24hrTemp", "past24hrHumidity", "past24hrLight", "past30dayTemp", "past30dayHumidity", "past30dayLight"];
 
-	ctx = document.getElementById("past24hrHumidityChart").getContext("2d");
-	var humidity24hChart = new Chart(ctx).Line(humidityData, lineOptions);
-	
-	ctx = document.getElementById("past24hrLightChart").getContext("2d");
-	var humidity24hChart = new Chart(ctx).Line(lightData, lineOptions);
-	
-	ctx = document.getElementById("past30dayTempChart").getContext("2d");
-	var temp30dayChart = new Chart(ctx).Line(temp30dayData, lineOptions);
-	
-	ctx = document.getElementById("past30dayHumidityChart").getContext("2d");
-	var humid30dayChart = new Chart(ctx).Line(humidity30dayData, lineOptions);
-	
-	ctx = document.getElementById("past30dayLightChart").getContext("2d");
-	var humid30dayChart = new Chart(ctx).Line(light30dayData, lineOptions);
-	
-}
+  // Data comes from collectorData.js, unless the generator fails
+  function drawChart() {
+  
+  var i;
+  var ctx;
+  var chart;
+  
+  for (i = 0; i < prefixes.length; i++) {
+    ctx = document.getElementById(prefixes[i] + "Chart").getContext("2d");
+    chart = new Chart(ctx).Line(eval(prefixes[i] + "Data"), lineOptions);
+  }
+  
+/*
+  var ctx = document.getElementById("past24hrTempChart").getContext("2d");
+  var temp24hChart = new Chart(ctx).Line(past24hrTempData, lineOptions);
+
+  ctx = document.getElementById("past24hrHumidityChart").getContext("2d");
+  var humidity24hChart = new Chart(ctx).Line(past24hrHumidityData, lineOptions);
+
+  ctx = document.getElementById("past24hrLightChart").getContext("2d");
+  var humidity24hChart = new Chart(ctx).Line(past24hrLightData, lineOptions);
+
+  ctx = document.getElementById("past30dayTempChart").getContext("2d");
+  var temp30dayChart = new Chart(ctx).Line(past30dayTempData, lineOptions);
+
+  ctx = document.getElementById("past30dayHumidityChart").getContext("2d");
+  var humid30dayChart = new Chart(ctx).Line(past30dayHumidityData, lineOptions);
+
+  ctx = document.getElementById("past30dayLightChart").getContext("2d");
+  var humid30dayChart = new Chart(ctx).Line(past30dayLightData, lineOptions); */
+
+  }
 </script>
 </head>
-<body onLoad="javascript:drawChart();">
-Temperature Past 24 Hours<hr>
-<canvas id="past24hrTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-Humidity Past 24 Hours<hr>
-<canvas id="past24hrHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-Light Intensity Past 24 Hours<hr>
-<canvas id="past24hrLightChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-Temperature Past 30 Days<hr>
-<canvas id="past30dayTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-Humidity Past 30 Days<hr>
-<canvas id="past30dayHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-Light Intensity Past 30 Days<hr>
-<canvas id="past30dayLightChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
-</body>
+  <body onLoad="javascript:drawChart();">
+    Temperature Past 24 Hours<br clear="all" />
+    <canvas id="past24hrTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas>
+    <br clear="all" />
+    <div id="past24hrTempMessage" />
+    <div id="past24hrTempError" />
+    <hr/>
+    Humidity Past 24 Hours<br clear="all" />
+    <canvas id="past24hrHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+    <div id="past24hrHumidityMessage" />
+    <div id="past24hrHumidityError" />
+    <hr/>
+    Light Intensity Past 24 Hours<br clear="all" />
+    <canvas id="past24hrLightChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+    <div id="past24hrLightMessage" />
+    <div id="past24hrLightError" />
+    <hr/>
+    Temperature Past 30 Days<br clear="all" />
+    <canvas id="past30dayTempChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+    <div id="past30dayTempMessage" />
+    <div id="past30dayTempError" />
+    <hr/>
+    Humidity Past 30 Days<br clear="all" />
+    <canvas id="past30dayHumidityChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas><br clear="all" />
+    <div id="past30dayHumidityMessage" />
+    <div id="past30dayHumidityError" />
+    <hr/>
+    Light Intensity Past 30 Days<br clear="all" />
+    <canvas id="past30dayLightChart" data-type="Line" width="800" height="400" style="width: 600px; height: 400px;"></canvas>
+    <br clear="all" />
+    <div id="past30dayLightMessage" />
+    <div id="past30dayLightError" />
+  </body>
+</html>
