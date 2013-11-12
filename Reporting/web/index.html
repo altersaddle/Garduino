@@ -16,34 +16,18 @@
   // Data comes from collectorData.js, unless the generator fails
   function drawChart() {
   
-  var i;
-  var ctx;
-  var chart;
+    var i;
+    var ctx;
+    var chart;
   
-  for (i = 0; i < prefixes.length; i++) {
-    ctx = document.getElementById(prefixes[i] + "Chart").getContext("2d");
-    chart = new Chart(ctx).Line(eval(prefixes[i] + "Data"), lineOptions);
-  }
+    for (i = 0; i < prefixes.length; i++) {
+      ctx = document.getElementById(prefixes[i] + "Chart").getContext("2d");
+      chart = new Chart(ctx).Line(eval(prefixes[i] + "Data"), lineOptions);
+      
+      document.getElementById(prefixes[i] + "Message").innerHTML = "Time: " + eval(prefixes[i] + "Time") + "ms ";
+      document.getElementById(prefixes[i] + "Error").innerHTML = "" + eval(prefixes[i] + "Error") + "";
+    }
   
-/*
-  var ctx = document.getElementById("past24hrTempChart").getContext("2d");
-  var temp24hChart = new Chart(ctx).Line(past24hrTempData, lineOptions);
-
-  ctx = document.getElementById("past24hrHumidityChart").getContext("2d");
-  var humidity24hChart = new Chart(ctx).Line(past24hrHumidityData, lineOptions);
-
-  ctx = document.getElementById("past24hrLightChart").getContext("2d");
-  var humidity24hChart = new Chart(ctx).Line(past24hrLightData, lineOptions);
-
-  ctx = document.getElementById("past30dayTempChart").getContext("2d");
-  var temp30dayChart = new Chart(ctx).Line(past30dayTempData, lineOptions);
-
-  ctx = document.getElementById("past30dayHumidityChart").getContext("2d");
-  var humid30dayChart = new Chart(ctx).Line(past30dayHumidityData, lineOptions);
-
-  ctx = document.getElementById("past30dayLightChart").getContext("2d");
-  var humid30dayChart = new Chart(ctx).Line(past30dayLightData, lineOptions); */
-
   }
 </script>
 </head>

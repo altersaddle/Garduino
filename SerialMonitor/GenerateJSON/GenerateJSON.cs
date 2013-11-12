@@ -63,6 +63,7 @@ namespace GenerateJSON
             string[] labels = null;
             string[] data = null;
             string retVal = string.Empty;
+            string error = string.Empty;
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -98,11 +99,12 @@ namespace GenerateJSON
                     data = valueList.Reverse<string>().ToArray();
                 }
 
-                retVal = string.Format("var {2}Data = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};", string.Join(",", data), string.Join("\",\"", labels), variablePrefix);
+                retVal = string.Format("var {2}Data = {{ labels : [\"{1}\"], datasets : [{{data : [{0}]}}] }};\n", string.Join(",", data), string.Join("\",\"", labels), variablePrefix);
             }
             catch (Exception e)
             {
-                retVal = string.Format("var {0}Data = {{datasets:[]}};\nvar {0}Error = \"{1}\"", variablePrefix, e.Message);
+                retVal = string.Format("var {0}Data = {{labels:[],datasets:[]}};\n", variablePrefix);
+                error = e.Message;
             }
             finally
             {
@@ -119,7 +121,7 @@ namespace GenerateJSON
                 }
                 stopWatch.Stop();
             }
-            retVal += string.Format("\n var {0}Time = {1};", variablePrefix, stopWatch.ElapsedMilliseconds);
+            retVal += string.Format("var {0}Time = {1};\nvar {0}Error = \"{2}\";\n", variablePrefix, stopWatch.ElapsedMilliseconds, error);
 
             return retVal;
         }
@@ -132,6 +134,7 @@ namespace GenerateJSON
             string[] maxdata = null;
             string[] avgdata = null;
             string retVal = string.Empty;
+            string error = string.Empty;
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -185,7 +188,7 @@ namespace GenerateJSON
 
                 retVal = string.Format("var {0}Data = {{ labels : [\"{1}\"], datasets : [{{fillColor:\"rgba({2},0.33)\",strokeColor:\"rgba({2},1)\",data:[{3}]}}," +
                     "{{fillColor:\"rgba({4},0.33)\",strokeColor:\"rgba({4},1)\",data:[{5}]}}," +
-                    "{{fillColor:\"rgba({6},0.33)\",strokeColor:\"rgba({6},1)\",data:[{7}]}}] }};",
+                    "{{fillColor:\"rgba({6},0.33)\",strokeColor:\"rgba({6},1)\",data:[{7}]}}] }};\n",
                     variablePrefix,
                     string.Join("\",\"", labels),
                     "205,50,50",
@@ -198,7 +201,8 @@ namespace GenerateJSON
             }
             catch (Exception e)
             {
-                retVal = string.Format("var {0}Data = {{datasets:[]}};\nvar {0}Error = \"{1}\"", variablePrefix, e.Message);
+                retVal = string.Format("var {0}Data = {{labels:[],datasets:[]}};\n", variablePrefix);
+                error = e.Message;
             }
             finally
             {
@@ -215,7 +219,7 @@ namespace GenerateJSON
                 }
                 stopWatch.Stop();
             }
-            retVal += string.Format("\n var {0}Time = {1};", variablePrefix, stopWatch.ElapsedMilliseconds);
+            retVal += string.Format("var {0}Time = {1};\nvar {0}Error = \"{2}\";\n", variablePrefix, stopWatch.ElapsedMilliseconds, error);
 
             return retVal;
         }
