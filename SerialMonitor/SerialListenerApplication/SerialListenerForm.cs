@@ -16,16 +16,24 @@ namespace SerialListenerApplication
         static string connectionString = "Server=192.168.1.32;Database=garden;User Id=garden_collector;Password=gnome123!@#;";
         static string sqlInsert = "INSERT INTO dbo.SENSORDATA (DEVICE, SENSOR, NUMVAL, OBSERVED, COLLECTED) VALUES (@DEVICE, @SENSOR, @NUMVAL, @OBSERVED, GETDATE())";
 
+        private bool debug = true;
+
         private ListenerWorker listenerWorker = null;
+        private Dictionary<string, Dictionary<string, List<double>>> accumulatedData;
+        private Dictionary<Tuple<string, string>, System.Threading.Timer> timers;
 
         public SerialListenerForm()
         {
             InitializeComponent();
+            accumulatedData = new Dictionary<string, Dictionary<string, List<double>>>();
+            timers = new Dictionary<Tuple<string, string>, System.Threading.Timer>();
 
             // enumerate available serial ports
             string[] theSerialPortNames = System.IO.Ports.SerialPort.GetPortNames();
 
             comboBox1.DataSource = theSerialPortNames;
+
+            debugCheckbox.DataBindings.Add("Checked", this, "DebugChecked", false, DataSourceUpdateMode.OnPropertyChanged);
 
         }
 
@@ -62,8 +70,6 @@ namespace SerialListenerApplication
             }
         }
 
-
-
         private void buttonStop_Click(object sender, EventArgs e)
         {
             if (listenerWorker.IsRunning())
@@ -88,19 +94,17 @@ namespace SerialListenerApplication
         {
             ListenerWorker l = (ListenerWorker)sender;
             string line = l.GetData();
-            string sensorName = l.GetSensorName();
+            string deviceName = l.GetSensorName();
 
-
-            
             // TODO: extrapolate the name of the sensor, perhaps from the bluetooth name
-            dbCommit(sensorName, line.Split('\t'));
+            accumulate(deviceName, line.Split('\t'));
 
             rxString = line;
             BeginInvoke(new EventHandler(UpdateInterface));
 
         }
 
-        private void dbCommit(string sensor, string[] data)
+        private void accumulate(string device, string[] data)
         {
             if (data == null || data.Length < 3)
             {
@@ -114,34 +118,75 @@ namespace SerialListenerApplication
                 data[2] = data[2].Replace(",", String.Empty);
             }
 
+            if (!accumulatedData.Keys.Contains(device))
+            {
+                accumulatedData[device] = new Dictionary<string, List<double>>();
+            }
+            Dictionary<string, List<double>> collector = accumulatedData[device];
+            for (int i = 0; i < data.Length - 2; i++)
+            {
+                string collectorName = string.Format("{0}{1}", data[0], i);
+                double collectorValue = Convert.ToDouble(data[i + 2]);
+
+                if (!collector.Keys.Contains(collectorName))
+                {
+                    collector[collectorName] = new List<double>();
+                    Tuple<string, string> tuple = Tuple.Create(device, collectorName);
+                    BeginInvoke(new EventHandler(AppendText), new MessageEventArgs(String.Format("Adding {0} {1}\n", device, collectorName)));
+                    System.Threading.Timer t = new System.Threading.Timer(commit, tuple, 30000, System.Threading.Timeout.Infinite);
+                    timers[tuple] = t;
+                }
+                collector[collectorName].Add(collectorValue);
+
+            }
+
+        }
+
+        void commit(object sender)
+        {
+            Tuple<string, string> t = (Tuple<string, string>)sender;
+            Dictionary<string, List<double>> collector = accumulatedData[t.Item1];
+
+            dbCommit(t.Item1, t.Item2, collector[t.Item2].Average());
+            collector[t.Item2] = new List<double>();
+            collector.Remove(t.Item2);
+            
+            timers[t].Dispose();
+            timers[t] = null;
+        }
+
+        private void dbCommit(string device, string sensor, double value)
+        {
+            if (debug)
+            {
+                BeginInvoke(new EventHandler(AppendText), new MessageEventArgs(String.Format("insert {0} {1} {2}", device, sensor, value)));
+                return;
+            }
+
             SqlConnection conn = null;
             try
             {
                 using (conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    for (int i = 0; i < data.Length - 2; i++)
+
+                    using (SqlCommand cmd = conn.CreateCommand())
                     {
-                        using (SqlCommand cmd = conn.CreateCommand())
-                        {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.CommandText = sqlInsert;
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = sqlInsert;
 
-                            cmd.Parameters.Add(new SqlParameter("@DEVICE", sensor));
-                            cmd.Parameters.Add(new SqlParameter("@SENSOR", string.Format("{0}_1}", data[0], i)));
-                            cmd.Parameters.Add(new SqlParameter("@NUMVAL", Convert.ToDouble(data[i + 2])));
-                            cmd.Parameters.Add(new SqlParameter("@OBSERVED", DateTime.Now));
+                        cmd.Parameters.Add(new SqlParameter("@DEVICE", device));
+                        cmd.Parameters.Add(new SqlParameter("@SENSOR", sensor));
+                        cmd.Parameters.Add(new SqlParameter("@NUMVAL", value));
+                        cmd.Parameters.Add(new SqlParameter("@OBSERVED", DateTime.Now));
 
-                            cmd.ExecuteNonQuery();
-                        }
+                        cmd.ExecuteNonQuery();
                     }
-
                 }
             }
             catch (Exception e)
             {
-                rxString = e.Message;
-                BeginInvoke(new EventHandler(UpdateInterface));
+                BeginInvoke(new EventHandler(AppendText), new MessageEventArgs(e.Message));
             }
             finally
             {
@@ -156,6 +201,15 @@ namespace SerialListenerApplication
                 {
                     // probably not much more to do here
                 }
+            }
+        }
+
+        private void AppendText(object sender, EventArgs e)
+        {
+            if (debug && sender is MessageEventArgs)
+            {
+                MessageEventArgs m = (MessageEventArgs)sender;
+                textBox1.AppendText(m.Message);
             }
         }
 
@@ -187,9 +241,13 @@ namespace SerialListenerApplication
                         break;
                     default:
                         // Did not recognize the signature
-                        textBox1.AppendText(rxString);
+                        textBox1.AppendText(rxString + "\n");
                         break;
                 }
+            }
+            else
+            {
+                textBox1.AppendText("Unrecognized: " + rxString + "\n");
             }
         }
 
@@ -200,5 +258,10 @@ namespace SerialListenerApplication
             if (listenerWorker.IsRunning()) listenerWorker.StopListening();
         }
 
+        public bool DebugChecked
+        {
+            get { return debug; }
+            set { debug = value; }
+        }
     }
 }

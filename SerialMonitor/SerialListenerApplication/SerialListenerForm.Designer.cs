@@ -43,6 +43,7 @@
             this.txtSoil = new System.Windows.Forms.TextBox();
             this.txtLight = new System.Windows.Forms.TextBox();
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
+            this.debugCheckbox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -155,11 +156,22 @@
             this.txtLight.Size = new System.Drawing.Size(100, 20);
             this.txtLight.TabIndex = 12;
             // 
+            // debugCheckbox
+            // 
+            this.debugCheckbox.AutoSize = true;
+            this.debugCheckbox.Location = new System.Drawing.Point(258, 88);
+            this.debugCheckbox.Name = "debugCheckbox";
+            this.debugCheckbox.Size = new System.Drawing.Size(58, 17);
+            this.debugCheckbox.TabIndex = 13;
+            this.debugCheckbox.Text = "Debug";
+            this.debugCheckbox.UseVisualStyleBackColor = true;
+            // 
             // SerialListenerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(492, 400);
+            this.Controls.Add(this.debugCheckbox);
             this.Controls.Add(this.txtLight);
             this.Controls.Add(this.txtSoil);
             this.Controls.Add(this.txtHumidity);
@@ -196,6 +208,7 @@
         private System.Windows.Forms.TextBox txtSoil;
         private System.Windows.Forms.TextBox txtLight;
         private System.IO.Ports.SerialPort serialPort1;
+        private System.Windows.Forms.CheckBox debugCheckbox;
     }
 }
 
