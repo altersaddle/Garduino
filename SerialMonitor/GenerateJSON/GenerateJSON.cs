@@ -22,13 +22,13 @@ using System.Text;
 using System.Data.SqlClient;
 using System.Data;
 using System.Diagnostics;
+using System.Configuration;
 
 namespace GenerateJSON
 {
     class GenerateJSON
     {
         // TODO: Fetch DB connection from common storage
-        static string connectionStringTemplate = "Server=192.168.1.32;Database=garden;User Id={0};Password={1}";
         static string past24HourQuery = "SELECT TOP 96 AVG(NUMVAL) AS VALUE, STEP FROM SENSOR_AGG WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY STEP ORDER BY MAX(COLLECTED) DESC";
         static string past30DayQuery = "SELECT TOP 30 MAX(NUMVAL) AS MAXVAL, AVG(NUMVAL) AS AVGVAL, MIN(NUMVAL) AS MINVAL, CONVERT(date,COLLECTED) AS DATE FROM SENSORDATA WHERE DEVICE = @DEVICE AND SENSOR = @SENSOR GROUP BY CONVERT(date,COLLECTED) ORDER BY MAX(COLLECTED) DESC";
 
@@ -39,7 +39,8 @@ namespace GenerateJSON
                 Console.WriteLine(string.Format("Usage: {0} <user> <password>", System.AppDomain.CurrentDomain.FriendlyName));
                 return;
             }
-            // past 24 hours: 96 data points, 24 labels
+            string connectionStringTemplate = ConfigurationManager.ConnectionStrings["GarduinoDatabase"].ConnectionString;
+            
             GenerateJSON app = new GenerateJSON();
             string connectionString = string.Format(connectionStringTemplate, args[0], args[1]);
 

@@ -13,7 +13,7 @@ namespace SerialListenerApplication
     public partial class SerialListenerForm : Form
     {
         static string rxString;
-        static string connectionString = "Server=192.168.1.32;Database=garden;User Id=garden_collector;Password=gnome123!@#;";
+        static string connectionString = "";
         static string sqlInsert = "INSERT INTO dbo.SENSORDATA (DEVICE, SENSOR, NUMVAL, OBSERVED, COLLECTED) VALUES (@DEVICE, @SENSOR, @NUMVAL, @OBSERVED, GETDATE())";
 
         private bool debug = true;
