@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Configuration;
 
 namespace SerialListenerApplication
 {
     public partial class SerialListenerForm : Form
     {
         static string rxString;
-        static string connectionString = "";
         static string sqlInsert = "INSERT INTO dbo.SENSORDATA (DEVICE, SENSOR, NUMVAL, OBSERVED, COLLECTED) VALUES (@DEVICE, @SENSOR, @NUMVAL, @OBSERVED, GETDATE())";
 
         private bool debug = true;
@@ -166,6 +166,8 @@ namespace SerialListenerApplication
             SqlConnection conn = null;
             try
             {
+                string connectionString = ConfigurationManager.ConnectionStrings["GarduinoDatabase"].ConnectionString;
+
                 using (conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
